@@ -1,0 +1,12 @@
+{
+    "name": "dmitry/grid",
+    "description": "Plugin for the WordPress",
+    "license": "GNU General Public License version 3",
+    "autoload": {
+        "psr-4": {
+            "Dmitry\\Grid\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {}
+}
