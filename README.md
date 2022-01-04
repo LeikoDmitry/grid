@@ -21,3 +21,8 @@ Usage:
 [dm-grid order=ASC taxonomy=custom_category orderby=name_or_some_custom_field]
 ```
 
+> Note:
+>++++++++++++++
+> 
+> Plugin for category image:
+> https://wordpress.org/plugins/custom-category-image/
