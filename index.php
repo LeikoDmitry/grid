@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: Category or Custom Post Type With Grid
- * Description: Test plugin for the SolbergSoft. 
+ * Plugin Name: Category or Custom Taxonomy ShortCode.
+ * Description: Test plugin. 
  * Author: Dmitry Leiko
  * Author URI: https://github.com/LeikoDmitry
  * Version: 1.0.0
