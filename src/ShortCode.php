@@ -4,91 +4,138 @@ namespace Dmitry\Grid;
 
 class ShortCode
 {
-    public function run(array $attrs, $content): string
+    /**
+     * @param string|array $attrs
+     */
+    public function run($attrs): string
     {
+        $attrs = shortcode_atts(array(
+            'size'        => 'full',
+            'term_id'     => null,
+            'taxonomy'    => 'category',
+            'orderby'     => 'term_id',
+            'order'       => 'ASC',
+            'columns'     => 2,
+            'show_title'  => 1,
+            'show_count'  => 1,
+            'show_desc'   => 1,
+            'hide_empty'  => 0,
+            'exclude_cat' => [],
+            'meta_field'  => '',
+        ), $attrs);
 
-        $attrs = extract(shortcode_atts(array(
-            'size' => 'full',
-            'term_id' => null,
-            'taxonomy' => 'category',
-            'design' => 'design-1',
-            'orderby' => 'name',
-            'order' => 'ASC',
-            'columns' => 3,
-            'show_title' => 'true',
-            'show_count' => 'true',
-            'show_desc' => 'true',
-            'hide_empty' => 'true',
-            'exclude_cat' => array(),
-            'extra_class' => '',
-            'className' => '',
-            'align' => '',
-        ), $attrs, 'pci-cat-grid'));
+        extract($attrs);
 
         $size = !empty($size) ? $size : 'full';
-        $term_id = !empty($term_id) ? explode(',', $term_id) : '';
+        $termId = !empty($term_id) ? explode(',', $term_id) : '';
         $taxonomy = !empty($taxonomy) ? $taxonomy : 'category';
-        $design = !empty($design) ? $design : 'design-1';
-        $show_title = ($show_title == 'true') ? true : false;
-        $show_count = ($show_count == 'true') ? true : false;
-        $show_desc = ($show_desc == 'true') ? true : false;
-        $hide_empty = ($hide_empty == 'false') ? false : true;
-        $exclude_cat = !empty($exclude_cat) ? explode(',', $exclude_cat) : array();
+        $showTitle = $show_title === 1;
+        $showCount = $show_count === 1;
+        $showDescription = $show_desc === 1;
+        $hideEmpty = !(($hide_empty === 0));
+        $excludeCategories = !empty($exclude_cat) ? explode(',', $exclude_cat) : array();
         $columns = (!empty($columns) && $columns <= 4) ? $columns : 3;
-        $count = 0;
 
-        // get terms and workaround WP bug with parents/pad counts
-        $args = array(
-            'orderby' => $orderby,
-            'order' => $order,
-            'include' => $term_id,
+        $args = [
+            'orderby'    => $orderby,
+            'order'      => $order,
+            'include'    => $term_id,
             'hide_empty' => $hide_empty,
-            'exclude' => $exclude_cat,
+            'exclude'    => $exclude_cat,
+        ];
+
+        $categories = get_terms($taxonomy, $args);
+
+        return $this->render(
+            $categories,
+            compact(
+                'size',
+                'termId',
+                'showTitle',
+                'showDescription',
+                'showCount',
+                'hideEmpty',
+                'excludeCategories',
+                'columns'
+            )
         );
+    }
 
-        $post_categories = get_terms($taxonomy, $args);
-
+    public function render(array $items = [], array $shortCodeArrayData = []): string
+    {
         ob_start();
-
-        if ($post_categories) { ?>
-            <div class="pciwgas-cat-wrap pciwgas-clearfix <?php echo $extra_class; ?> pciwgas-<?php echo $design; ?>">
+        $content = '';
+        $count = 1;
+        if ($items): ?>
+            <div class="row">
+            <?php foreach ($items as $category): ?>
                 <?php
-                foreach ($post_categories as $category) {
-                    $thumbnail = get_term_meta($category->term_id, 'thumbnail_id', true);
-                    $category_image = wp_get_attachment_image_src($thumbnail, $size);
-                    $term_link = get_term_link($category, $taxonomy);
-                    ?>
-
-                    <div class="row">
-                        <div class="col">
-                            <div class="img-wrapper">
-                                <?php if (!empty($category_image)) { ?>
-                                    <a href="<?php echo $term_link; ?>">
-                                        <img src="<?php echo $category_image; ?>" class="cat-img" alt="This is image"/>
-                                    </a>
-                                <?php } ?>
-                            </div>
-                            <div class="title">
-                                <?php if ($show_title && $category->name) { ?>
-                                    <a href="<?php echo $term_link; ?>"><?php echo $category->name; ?> </a>
-                                <?php }
-                                if ($show_count) { ?>
-                                    <span class="category-count"><?php echo $category->count; ?></span>
-                                <?php } ?>
-                            </div>
-                            <?php if ($show_desc && $category->description) { ?>
-                                <div class="description">
-                                    <div class="pciwgas-cat-desc"><?php echo $category->description; ?></div>
-                                </div>
-                            <?php } ?>
-                        </div>
+                $thumbnail = get_term_meta($category->term_id, '_category_image_id', true);
+                $categoryImage = wp_get_attachment_image_src($thumbnail, $shortCodeArrayData['size'] ?? 'full');
+                $termLink = get_term_link($category, $shortCodeArrayData['taxonomy'] ?? 'category');
+                ?>
+                <div class="col">
+                    <div class="img-wrapper">
+                        <?php
+                        if (!empty($categoryImage)): ?>
+                            <a href="<?php
+                            echo $termLink; ?>">
+                                <img src="<?php
+                                echo $categoryImage[0]; ?>" class="cat-img" alt="This is image"/>
+                            </a>
+                        <?php
+                        endif; ?>
                     </div>
-                    <?php $count++;
-                } ?>
+                    <div class="title">
+                        <?php
+                        if (($shortCodeArrayData['showTitle']) ?? null && $category->name): ?>
+                            <a href="<?php
+                            echo esc_url($termLink); ?>"><?php
+                                echo esc_html($category->name); ?> </a>
+                        <?php
+                        endif; ?>
+                        <?
+                        if ($shortCodeArrayData['showCount'] ?? null): ?>
+                            <span class="category-count"><?php
+                                echo esc_html($category->count); ?></span>
+                        <?php
+                        endif; ?>
+                    </div>
+                    <?php
+                    if ($shortCodeArrayData['showDescription'] ?? null && $category->description): ?>
+                        <div class="description">
+                            <div class="cat-desc"><?php
+                                echo esc_html($category->description); ?></div>
+                        </div>
+                    <?php
+                    endif; ?>
+                    <div class="meta">
+                        <?php
+                        if ($shortCodeArrayData['meta_key'] ?? null): ?>
+                            <div class="wrap-meta">
+                                <div class="meta"><?php
+                                    echo get_term_meta(
+                                        $category->term_id,
+                                        esc_html($shortCodeArrayData['meta_key'] ?? ''),
+                                        true
+                                    ); ?></div>
+                            </div>
+                        <?php
+                        endif; ?>
+                    </div>
+                </div>
+            <?php if ($count % $shortCodeArrayData['columns'] === 0): ?>
             </div>
-            <?php
-        }
+            <div class="row">
+            <?php endif; ?>
+            <?php $count++ ?>
+            <?php endforeach; ?>
+        </div>
+        <?php
+        endif ?>
+        <?php
         $content .= ob_get_clean();
+
         return $content;
     }
 }

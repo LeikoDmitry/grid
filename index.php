@@ -10,7 +10,7 @@
 namespace Dmitry\Grid;
 
 if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
+    exit;
 }
 
 require __DIR__.'/vendor/autoload.php';
