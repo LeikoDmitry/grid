@@ -3,13 +3,13 @@ Plugin for the WordPress
 
 Installation:
 -------------
-Go to your plugin directory and the clone via git command follow:
+Go to your plugin directory and the clone via git:
 
 ```bash
-$ cd /worpress-path/wp-content/pluging
+$ cd /worpress-path/wp-content/plugins
 $ git clone https://github.com/LeikoDmitry/grid.git category-grid
 ```
-Next need to activate in the admin area. Now you can add short code on pages or posts.
+Next need to activate in the admin area. Now you can add shortcode on pages.
 
 Usage:
 ------
