@@ -33,7 +33,7 @@ class ShortCode
         $showCount = $show_count === 1;
         $showDescription = $show_desc === 1;
         $hideEmpty = !(($hide_empty === 0));
-        $excludeCategories = !empty($exclude_cat) ? explode(',', $exclude_cat) : array();
+        $excludeCategories = !empty($exclude_cat) ? explode(',', $exclude_cat) : [];
         $columns = (!empty($columns) && $columns <= 4) ? $columns : 3;
 
         $args = [
